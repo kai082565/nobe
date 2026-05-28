@@ -1,0 +1,10 @@
+{
+  "wallets": {
+    "XMR":  "878ttBnGWbrcGpjE2wnaf18NyFnJzpuCUWLL4pXiNAHELZAJoDr8fBY53bRu88P7SN5YKm3Bp8AwU7US759eVwcYD4Tz4RS",
+    "ETC":  "YOUR_ETC_WALLET_ADDRESS",
+    "ERGO": "YOUR_ERGO_WALLET_ADDRESS",
+    "RVN":  "YOUR_RVN_WALLET_ADDRESS"
+  },
+  "worker_name": "rig01",
+  "electricity_ntd_per_kwh": 4.5
+}

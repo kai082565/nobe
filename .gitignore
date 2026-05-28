@@ -1,0 +1,14 @@
+# 礦工程式（二進位檔，太大）
+mining_system/miners/
+mining_system/build/dist/
+mining_system/build/USB/
+mining_system/build/pyinstaller_tmp/
+mining_system/build/*.spec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 安裝產生的檔案
+mining_system/src/__pycache__/
