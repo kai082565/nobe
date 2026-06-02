@@ -17,8 +17,10 @@ RESTART_DELAY_SEC = 5
 MAX_RESTARTS      = 20
 STABLE_THRESHOLD  = 300
 
-# 算力解析 regex
-_RE_XMRIG   = re.compile(r"speed\s+\S+\s+([\d.]+)", re.IGNORECASE)
+# ANSI 色碼清除
+_RE_ANSI     = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
+# 算力解析 regex（支援 XMRig 多種輸出格式）
+_RE_XMRIG    = re.compile(r"speed\s+[\d./smh]+\s+([\d.]+)", re.IGNORECASE)
 _RE_LOLMINER = re.compile(r"Total\s+speed[:\s]+([\d.]+)\s*(MH|GH|KH|H)", re.IGNORECASE)
 
 
@@ -144,21 +146,22 @@ class MinerManager:
                     line = raw.decode("utf-8", errors="replace").rstrip()
                 except Exception:
                     continue
-                if not line:
+
+                # 去除 ANSI 色碼再解析
+                clean = _RE_ANSI.sub("", line).strip()
+                if not clean:
                     continue
 
-                # 解析算力
-                hr = self._parse_hashrate(line)
+                hr = self._parse_hashrate(clean)
                 if self.metrics:
                     if hr:
                         self.metrics.update(hashrate_str=hr)
-                    # 只記錄有意義的行
-                    if any(kw in line.lower() for kw in
+                    if any(kw in clean.lower() for kw in
                            ("speed", "mh/s", "h/s", "accepted", "pool",
                             "error", "connect", "hashrate", "total")):
-                        self.metrics.add_log(line[:120])
-        except Exception:
-            pass
+                        self.metrics.add_log(clean[:120])
+        except Exception as e:
+            logger.debug(f"stdout 讀取結束：{e}")
 
     def _parse_hashrate(self, line: str) -> str | None:
         m = _RE_XMRIG.search(line)

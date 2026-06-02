@@ -105,6 +105,7 @@ def cmd_mine(show_gui: bool = True) -> None:
     from detector import detect
     from metrics import metrics
     from dashboard import MiningDashboard
+    from auto_seller import AutoSeller
 
     if not is_installed():
         logger.error("尚未安裝，請先執行 --install")
@@ -164,6 +165,10 @@ def cmd_mine(show_gui: bool = True) -> None:
                 remaining = 1800
     _threading.Thread(target=_countdown, daemon=True).start()
 
+    # 自動賣幣監控
+    seller = AutoSeller(config, metrics=metrics)
+    seller.start()
+
     selector.set_switch_callback(on_coin_switch)
     manager.start()
     selector.start_auto_check()
@@ -171,11 +176,14 @@ def cmd_mine(show_gui: bool = True) -> None:
     if show_gui:
         dashboard = MiningDashboard(
             metrics,
+            config=config,
             stop_callback=on_stop,
             switch_callback=lambda: on_coin_switch(
                 *((best.coin, best.miner_type) if best else (config["coin"], config["miner_type"]))
             ),
+            seller=seller,
         )
+        seller.set_alert_callback(dashboard.show_alert)
         dashboard.run_blocking()   # 阻塞直到視窗關閉
     else:
         try:

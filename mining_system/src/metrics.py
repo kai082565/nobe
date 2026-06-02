@@ -16,6 +16,7 @@ class MiningMetrics:
     hashrate_str:    str = "—"
     restart_count:   int = 0
     next_check_sec:  int = 0          # 距離下次選幣的秒數
+    coin_price_usd:  float = 0.0     # 目前幣價
     _log:            list = field(default_factory=list, repr=False)
     _lock:           threading.Lock = field(default_factory=threading.Lock, repr=False)
     _mine_start:     float = field(default_factory=time.time, repr=False)
@@ -55,6 +56,7 @@ class MiningMetrics:
                 "uptime_str":     f"{h:02d}:{m:02d}:{s:02d}",
                 "restart_count":  self.restart_count,
                 "next_check_sec": self.next_check_sec,
+                "coin_price_usd": self.coin_price_usd,
                 "log_lines":      list(self._log),
             }
 

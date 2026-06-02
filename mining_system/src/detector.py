@@ -58,6 +58,23 @@ def detect() -> HardwareInfo:
 
 
 def _detect_cpu() -> tuple[str, int, int]:
+    # PowerShell 方式最穩定，用 | 分隔避免 CPU 名稱含逗號的問題
+    try:
+        r = subprocess.run(
+            ["powershell", "-Command",
+             "Get-WmiObject Win32_Processor | Select-Object -First 1 | "
+             "ForEach-Object { \"$($_.Name)|$($_.NumberOfCores)|$($_.NumberOfLogicalProcessors)\" }"],
+            capture_output=True, text=True, timeout=10
+        )
+        line = r.stdout.strip()
+        if "|" in line:
+            parts = line.split("|")
+            if len(parts) >= 3:
+                return parts[0].strip(), int(parts[1].strip()), int(parts[2].strip())
+    except Exception:
+        pass
+
+    # Fallback：wmic
     try:
         r = subprocess.run(
             ["wmic", "cpu", "get", "Name,NumberOfCores,NumberOfLogicalProcessors", "/format:csv"],
@@ -73,6 +90,7 @@ def _detect_cpu() -> tuple[str, int, int]:
                 continue
     except Exception:
         pass
+
     return "Unknown CPU", 4, 4
 
 
