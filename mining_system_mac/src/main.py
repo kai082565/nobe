@@ -178,6 +178,49 @@ def cmd_mine(show_gui: bool = True) -> None:
     manager.stop()
 
 
+def cmd_configure() -> None:
+    """USB 安裝腳本呼叫：偵測硬體 → 生成設定 → 建立 launchd（不複製檔案）"""
+    from detector import detect
+    from configurator import select_miner, build_xmrig_config, build_lolminer_args, write_xmrig_config
+    from installer import install_config_only, INSTALL_DIR
+
+    config_path = INSTALL_DIR / "config_user.json"
+    if not config_path.exists():
+        logger.error(f"找不到設定檔：{config_path}")
+        return
+
+    with open(config_path, encoding="utf-8") as f:
+        user_cfg = json.load(f)
+
+    print("偵測硬體...")
+    hw = detect()
+    print(hw.summary())
+
+    miner_type, coin = select_miner(hw)
+    wallets = user_cfg.get("wallets", {})
+    wallet  = wallets.get(coin) or next(iter(wallets.values()), "")
+    worker  = user_cfg.get("worker_name", "mac01")
+
+    print(f"推薦方案：{miner_type}  挖  {coin}")
+
+    config = {
+        "miner_type": miner_type,
+        "coin":       coin,
+        "worker_name": worker,
+        "wallets":    wallets,
+        "electricity_ntd_per_kwh": user_cfg.get("electricity_ntd_per_kwh", 4.5),
+    }
+
+    if miner_type == "lolminer":
+        config["lolminer_args"] = build_lolminer_args(wallet, worker, coin)
+    else:
+        xmrig_cfg = build_xmrig_config(hw, wallet, worker)
+        config["xmrig_config"] = xmrig_cfg
+        write_xmrig_config(xmrig_cfg, INSTALL_DIR / "xmrig_config.json")
+
+    install_config_only(config)
+
+
 def cmd_status() -> None:
     from installer import is_installed, load_config, INSTALL_DIR
 
@@ -213,6 +256,8 @@ if __name__ == "__main__":
 
     if "--install" in args:
         cmd_install()
+    elif "--configure" in args:
+        cmd_configure()
     elif "--mine" in args:
         cmd_mine()
     elif "--status" in args:

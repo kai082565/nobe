@@ -96,6 +96,14 @@ def _create_launchd() -> None:
         print(f"  [警告] 自動啟動設定失敗：{r.stderr.strip()}")
 
 
+def install_config_only(config: dict) -> None:
+    """USB 安裝流程：檔案已由 .command 腳本複製，這裡只生成設定 + launchd"""
+    INSTALL_DIR.mkdir(parents=True, exist_ok=True)
+    _save_config(config)
+    _create_launchd()
+    print("  設定完成\n")
+
+
 def uninstall() -> None:
     if PLIST_PATH.exists():
         subprocess.run(["launchctl", "unload", str(PLIST_PATH)], capture_output=True)
