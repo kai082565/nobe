@@ -1,6 +1,6 @@
 """
-礦工管理模組
-啟動、監控、解析輸出算力、自動重啟、動態切幣
+礦工管理模組 (macOS)
+啟動、監控、解析算力、自動重啟、動態切幣
 """
 
 import subprocess
@@ -14,13 +14,12 @@ from configurator import build_lolminer_args, build_xmrig_config, write_xmrig_co
 
 logger = logging.getLogger(__name__)
 
-RESTART_DELAY_SEC  = 5
-MAX_RESTARTS       = 20
-STABLE_THRESHOLD   = 300
-XMRIG_API_URL      = "http://127.0.0.1:3001/2/summary"
-API_POLL_INTERVAL  = 10   # 每 10 秒從 API 抓一次算力
+RESTART_DELAY_SEC = 5
+MAX_RESTARTS      = 20
+STABLE_THRESHOLD  = 300
+XMRIG_API_URL     = "http://127.0.0.1:3001/2/summary"
+API_POLL_INTERVAL = 10
 
-# lolMiner stdout 解析（lolMiner 無 HTTP API）
 _RE_ANSI     = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
 _RE_LOLMINER = re.compile(r"Total\s+speed[:\s]+([\d.]+)\s*(MH|GH|KH|H)", re.IGNORECASE)
 
@@ -28,16 +27,16 @@ _RE_LOLMINER = re.compile(r"Total\s+speed[:\s]+([\d.]+)\s*(MH|GH|KH|H)", re.IGNO
 class MinerManager:
 
     def __init__(self, install_dir: Path, config: dict, metrics=None):
-        self.install_dir  = install_dir
-        self.config       = config
-        self.metrics      = metrics       # MiningMetrics | None
-        self._process:    subprocess.Popen | None = None
-        self._running     = False
-        self._thread:     threading.Thread | None = None
-        self._reader:     threading.Thread | None = None
-        self._restarts    = 0
-        self._last_start  = 0.0
-        self._lock        = threading.Lock()
+        self.install_dir = install_dir
+        self.config      = config
+        self.metrics     = metrics
+        self._process:   subprocess.Popen | None = None
+        self._running    = False
+        self._thread:    threading.Thread | None = None
+        self._reader:    threading.Thread | None = None
+        self._restarts   = 0
+        self._last_start = 0.0
+        self._lock       = threading.Lock()
 
     # ── 公開介面 ──────────────────────────────────────────────────────────
 
@@ -74,7 +73,7 @@ class MinerManager:
             self.config["coin"]       = new_coin
             self.config["miner_type"] = new_miner_type
             wallet = self.config["wallets"].get(new_coin, "")
-            worker = self.config.get("worker_name", "rig01")
+            worker = self.config.get("worker_name", "mac01")
 
             if new_miner_type == "lolminer":
                 self.config["lolminer_args"] = build_lolminer_args(wallet, worker, new_coin)
@@ -104,40 +103,38 @@ class MinerManager:
         miner_type = self.config["miner_type"]
 
         if miner_type == "xmrig_cpu":
-            exe    = self.install_dir / "miners" / "xmrig" / "xmrig.exe"
+            exe    = self.install_dir / "miners" / "xmrig" / "xmrig"   # macOS 無 .exe
             config = self.install_dir / "xmrig_config.json"
             return [str(exe), "--config", str(config), "--no-color"]
 
         if miner_type == "lolminer":
-            exe  = self.install_dir / "miners" / "lolminer" / "lolminer.exe"
+            exe  = self.install_dir / "miners" / "lolminer" / "lolminer"
             args = self.config.get("lolminer_args", [])
             return [str(exe)] + args
 
         raise ValueError(f"未知的礦工類型：{miner_type}")
 
     def _launch(self) -> None:
-        cmd = self._build_cmd()
-        logger.info(f"啟動：{' '.join(cmd[:3])} ...")
+        cmd        = self._build_cmd()
         miner_type = self.config.get("miner_type", "")
+        logger.info(f"啟動：{' '.join(cmd[:3])} ...")
 
         if miner_type == "xmrig_cpu":
             self._process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NO_WINDOW,
+                # macOS 不需要 CREATE_NO_WINDOW
             )
             self._reader = threading.Thread(
                 target=self._poll_xmrig_api,
                 daemon=True,
             )
         else:
-            # lolMiner：單一進程，用 stdout 解析算力
             self._process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                creationflags=subprocess.CREATE_NO_WINDOW,
             )
             self._reader = threading.Thread(
                 target=self._read_stdout,
@@ -152,29 +149,24 @@ class MinerManager:
             self.metrics.update(status="運行中")
 
     def _poll_xmrig_api(self) -> None:
-        """定期呼叫 XMRig HTTP API 取得算力"""
-        time.sleep(15)   # 等 XMRig 初始化完成
+        time.sleep(15)
         session = requests.Session()
         while self.is_alive:
             try:
                 r = session.get(XMRIG_API_URL, timeout=5)
                 if r.status_code == 200:
-                    data = r.json()
+                    data   = r.json()
                     totals = data.get("hashrate", {}).get("total", [])
-                    hr = next((v for v in totals if v and v > 0), None)
+                    hr     = next((v for v in totals if v and v > 0), None)
                     if hr and self.metrics:
                         self.metrics.update(hashrate_str=f"{hr:.1f} H/s")
-                        # 從 API 取得接受的 shares
                         accepted = data.get("results", {}).get("shares_good", 0)
-                        self.metrics.add_log(
-                            f"算力：{hr:.1f} H/s  |  已接受：{accepted}"
-                        )
+                        self.metrics.add_log(f"算力：{hr:.1f} H/s  |  已接受：{accepted}")
             except Exception:
                 pass
             time.sleep(API_POLL_INTERVAL)
 
     def _read_stdout(self, proc: subprocess.Popen) -> None:
-        """lolMiner stdout 解析"""
         try:
             for raw in proc.stdout:
                 if proc.poll() is not None:
@@ -213,7 +205,7 @@ class MinerManager:
                 with self._lock:
                     self._launch()
 
-                proc = self._process   # 鎖外持有參照，避免 switch_coin 將其設 None 後競態崩潰
+                proc = self._process
                 if proc:
                     proc.wait()
 
