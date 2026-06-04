@@ -1,9 +1,10 @@
-"""
+﻿"""
 安裝模組 (macOS)
 安裝到 ~/Library/Application Support/MiningSystem
 開機自動啟動使用 launchd
 """
 
+from __future__ import annotations
 import json
 import shutil
 import subprocess
@@ -19,6 +20,7 @@ def install(root_dir: Path, config: dict) -> None:
     root_dir: mining_system_mac 根目錄（含 src/ 和 miners/）
     config:   完整設定
     """
+from __future__ import annotations
     print(f"\n  安裝路徑：{INSTALL_DIR}")
     INSTALL_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -83,6 +85,7 @@ def _create_launchd() -> None:
 </dict>
 </plist>
 """
+from __future__ import annotations
     with open(PLIST_PATH, "w") as f:
         f.write(plist)
 
@@ -98,6 +101,7 @@ def _create_launchd() -> None:
 
 def install_config_only(config: dict) -> None:
     """USB 安裝流程：檔案已由 .command 腳本複製，這裡只生成設定 + launchd"""
+from __future__ import annotations
     INSTALL_DIR.mkdir(parents=True, exist_ok=True)
     _save_config(config)
     _create_launchd()

@@ -1,8 +1,9 @@
-"""
+﻿"""
 礦工管理模組 (macOS)
 啟動、監控、解析算力、自動重啟、動態切幣
 """
 
+from __future__ import annotations
 import subprocess
 import time
 import threading

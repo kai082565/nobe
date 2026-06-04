@@ -1,8 +1,9 @@
-"""
+﻿"""
 共享監控數據
 執行緒安全，礦工管理器寫入，Dashboard 讀取
 """
 
+from __future__ import annotations
 import time
 import threading
 from dataclasses import dataclass, field

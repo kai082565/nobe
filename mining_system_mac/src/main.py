@@ -1,4 +1,4 @@
-"""
+﻿"""
 主程式入口 (macOS)
 --install  安裝到本機
 --mine     開始挖礦
@@ -7,6 +7,7 @@
 --uninstall 解除安裝
 """
 
+from __future__ import annotations
 import sys
 import json
 import time
@@ -180,6 +181,7 @@ def cmd_mine(show_gui: bool = True) -> None:
 
 def cmd_configure() -> None:
     """USB 安裝腳本呼叫：偵測硬體 → 生成設定 → 建立 launchd（不複製檔案）"""
+from __future__ import annotations
     from detector import detect
     from configurator import select_miner, build_xmrig_config, build_lolminer_args, write_xmrig_config
     from installer import install_config_only, INSTALL_DIR

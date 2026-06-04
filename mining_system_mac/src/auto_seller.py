@@ -1,8 +1,9 @@
-"""
+﻿"""
 自動賣幣模組
 監控目標幣種價格，達到設定目標時提醒並記錄
 """
 
+from __future__ import annotations
 import time
 import threading
 import logging
@@ -53,6 +54,7 @@ class AutoSeller:
 
     def set_target(self, coin: str, price_usd: float) -> None:
         """設定或更新目標價格（0 = 取消）"""
+from __future__ import annotations
         if price_usd <= 0:
             self._targets.pop(coin, None)
             logger.info(f"已取消 {coin} 目標價格")
