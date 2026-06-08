@@ -2,8 +2,8 @@
 獲利自動選幣模組
 定期查詢 WhatToMine，選出目前最划算的幣種
 """
-
 from __future__ import annotations
+
 import requests
 import logging
 import time
@@ -50,7 +50,6 @@ class ProfitSelector:
 
     def set_switch_callback(self, fn) -> None:
         """當需要切換幣種時呼叫此 callback"""
-from __future__ import annotations
         self._on_switch = fn
 
     def start_auto_check(self) -> None:
@@ -65,7 +64,6 @@ from __future__ import annotations
 
     def best_coin_now(self) -> CoinProfit | None:
         """立即查詢並回傳目前最佳幣種"""
-from __future__ import annotations
         try:
             self._refresh_usd_ntd()
             return self._query_best()
@@ -212,7 +210,6 @@ from __future__ import annotations
 # 讓 HardwareInfo 支援功耗估算
 def _power_estimate(self) -> int:
     """粗估整機功耗（W）"""
-from __future__ import annotations
     base = 80  # 主機板 + CPU 待機
     if self.cpu_cores:
         base += self.cpu_cores * 15

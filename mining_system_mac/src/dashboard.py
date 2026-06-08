@@ -2,8 +2,8 @@
 即時挖礦監控視窗 (macOS)
 Tab 1：監控  Tab 2：設定
 """
-
 from __future__ import annotations
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading

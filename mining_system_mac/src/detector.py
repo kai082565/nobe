@@ -2,8 +2,8 @@
 硬體偵測模組 (macOS)
 使用 sysctl 取得 CPU 資訊；Apple Silicon 整合顯卡不用於挖礦
 """
-
 from __future__ import annotations
+
 import subprocess
 from dataclasses import dataclass, field
 

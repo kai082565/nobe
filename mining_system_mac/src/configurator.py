@@ -2,8 +2,8 @@
 設定生成模組
 根據硬體自動選擇最佳幣種與礦工程式，並生成設定檔
 """
-
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from detector import HardwareInfo
@@ -39,7 +39,6 @@ def select_miner(hw: HardwareInfo) -> tuple[str, str]:
     根據硬體回傳 (miner_type, coin)
     miner_type: "xmrig_cpu" | "lolminer"
     """
-from __future__ import annotations
     gpu = hw.best_gpu
 
     if gpu is None:
@@ -60,7 +59,6 @@ from __future__ import annotations
 
 def build_xmrig_config(hw: HardwareInfo, wallet: str, worker: str) -> dict:
     """生成 XMRig CPU 設定檔（JSON）"""
-from __future__ import annotations
     pool = POOLS["XMR"]
     return {
         "autosave": True,
@@ -94,7 +92,6 @@ from __future__ import annotations
 
 def build_lolminer_args(wallet: str, worker: str, coin: str) -> list[str]:
     """生成 lolMiner 啟動參數"""
-from __future__ import annotations
     pool = POOLS[coin]
     host, port = pool["url"].split(":")
     return [
