@@ -72,8 +72,8 @@ def build_xmrig_config(hw: HardwareInfo, wallet: str, worker: str) -> dict:
         },
         "cpu": {
             "enabled": True,
-            "max-threads-hint": 75,
-            "priority": 1,
+            "max-threads-hint": 100,
+            "priority": 2,
         },
         "opencl": {"enabled": False},
         "cuda":   {"enabled": False},
