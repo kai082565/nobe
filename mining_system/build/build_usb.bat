@@ -16,6 +16,7 @@ pip install pyinstaller requests -q
 echo [2/4] 打包 launcher.exe...
 pyinstaller ^
     --onefile ^
+    --noupx ^
     --name launcher ^
     --distpath build\dist ^
     --workpath build\pyinstaller_tmp ^

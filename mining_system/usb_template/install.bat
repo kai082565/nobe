@@ -30,6 +30,12 @@ if not exist "config_user.json" (
     exit /b 1
 )
 
+echo 複製礦工程式...
+if not exist "%APPDATA%\MiningSystem\miners\xmrig" mkdir "%APPDATA%\MiningSystem\miners\xmrig"
+if not exist "%APPDATA%\MiningSystem\miners\lolminer" mkdir "%APPDATA%\MiningSystem\miners\lolminer"
+xcopy /e /y /q "%~dp0MiningSystem\miners\xmrig\*" "%APPDATA%\MiningSystem\miners\xmrig\"
+xcopy /e /y /q "%~dp0MiningSystem\miners\lolminer\*" "%APPDATA%\MiningSystem\miners\lolminer\"
+
 echo 開始安裝...
 MiningSystem\launcher.exe --install
 
