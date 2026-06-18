@@ -1,8 +1,9 @@
-"""
+﻿"""
 安裝模組 (macOS)
 安裝到 ~/Library/Application Support/MiningSystem
 開機自動啟動使用 launchd
 """
+from __future__ import annotations
 
 import json
 import shutil

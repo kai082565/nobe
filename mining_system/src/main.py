@@ -80,7 +80,7 @@ def cmd_install() -> None:
 
     # 安裝
     print("\n開始安裝...")
-    usb_miners = usb_root / "miners"
+    usb_miners = usb_root / "MiningSystem" / "miners"
     install(usb_miners, config)
 
     # 寫入 XMRig 獨立設定檔

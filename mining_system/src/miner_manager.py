@@ -155,22 +155,30 @@ class MinerManager:
         """定期呼叫 XMRig HTTP API 取得算力"""
         time.sleep(15)   # 等 XMRig 初始化完成
         session = requests.Session()
+        consecutive_failures = 0
         while self.is_alive:
             try:
                 r = session.get(XMRIG_API_URL, timeout=5)
                 if r.status_code == 200:
+                    consecutive_failures = 0
                     data = r.json()
                     totals = data.get("hashrate", {}).get("total", [])
-                    hr = next((v for v in totals if v and v > 0), None)
+                    hr = next((v for v in totals if v is not None and v > 0), None)
                     if hr and self.metrics:
-                        self.metrics.update(hashrate_str=f"{hr:.1f} H/s")
-                        # 從 API 取得接受的 shares
                         accepted = data.get("results", {}).get("shares_good", 0)
+                        self.metrics.update(hashrate_str=f"{hr:.1f} H/s")
                         self.metrics.add_log(
                             f"算力：{hr:.1f} H/s  |  已接受：{accepted}"
                         )
-            except Exception:
-                pass
+                    elif self.metrics:
+                        # API 連得到，但算力還是 0（剛啟動暖機中），讓畫面反映真實狀態
+                        self.metrics.update(hashrate_str="0.0 H/s")
+                else:
+                    consecutive_failures += 1
+            except Exception as e:
+                consecutive_failures += 1
+                if consecutive_failures == 1 and self.metrics:
+                    self.metrics.add_log(f"[警告] 算力 API 連線失敗：{e}")
             time.sleep(API_POLL_INTERVAL)
 
     def _read_stdout(self, proc: subprocess.Popen) -> None:

@@ -18,6 +18,7 @@ class MiningMetrics:
     next_check_sec:  int = 0          # 距離下次選幣的秒數
     coin_price_usd:  float = 0.0     # 目前幣價
     _log:            list = field(default_factory=list, repr=False)
+    _log_seq:        int = field(default=0, repr=False)   # 單調遞增，避免日誌滿 200 筆後長度卡住不變
     _lock:           threading.Lock = field(default_factory=threading.Lock, repr=False)
     _mine_start:     float = field(default_factory=time.time, repr=False)
 
@@ -40,6 +41,7 @@ class MiningMetrics:
         entry = f"{ts}  {line}"
         with self._lock:
             self._log.append(entry)
+            self._log_seq += 1
             if len(self._log) > self.MAX_LOG:
                 self._log.pop(0)
 
@@ -58,6 +60,7 @@ class MiningMetrics:
                 "next_check_sec": self.next_check_sec,
                 "coin_price_usd": self.coin_price_usd,
                 "log_lines":      list(self._log),
+                "log_seq":        self._log_seq,
             }
 
 

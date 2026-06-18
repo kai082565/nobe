@@ -8,7 +8,10 @@ import shutil
 import subprocess
 from pathlib import Path
 
-INSTALL_DIR = Path.home() / "AppData" / "Roaming" / "MiningSystem"
+INSTALL_DIR = Path("C:/MiningSystem")
+# 注意：刻意不用 %APPDATA%（= C:\Users\<帳號>\AppData\...）。
+# 如果 Windows 帳號名稱含中文字，xmrig.exe 無法正確開啟該路徑下的設定檔，
+# 會導致啟動後立刻退出、不斷重啟。改用不含中文的固定路徑徹底避開這個問題。
 TASK_NAME   = "MiningSystemAutoStart"
 
 

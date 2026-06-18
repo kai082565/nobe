@@ -1,7 +1,8 @@
-"""
+﻿"""
 獲利自動選幣模組
 定期查詢 WhatToMine，選出目前最划算的幣種
 """
+from __future__ import annotations
 
 import requests
 import logging

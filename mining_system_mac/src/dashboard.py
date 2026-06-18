@@ -239,8 +239,8 @@ class MiningDashboard:
         self.lbl_hashrate.configure(text=hr if hr != "—" else "— H/s")
 
         log_lines = snap["log_lines"]
-        if len(log_lines) != self._last_log:
-            self._last_log = len(log_lines)
+        if snap["log_seq"] != self._last_log:
+            self._last_log = snap["log_seq"]
             self.log_text.configure(state="normal")
             self.log_text.delete("1.0", "end")
             self.log_text.insert("end", "\n".join(log_lines))

@@ -1,4 +1,4 @@
-"""
+﻿"""
 主程式入口 (macOS)
 --install  安裝到本機
 --mine     開始挖礦
@@ -6,6 +6,7 @@
 --stop     停用自動啟動
 --uninstall 解除安裝
 """
+from __future__ import annotations
 
 import sys
 import json

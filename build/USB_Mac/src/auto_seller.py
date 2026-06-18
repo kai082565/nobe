@@ -1,7 +1,8 @@
-"""
+﻿"""
 自動賣幣模組
 監控目標幣種價格，達到設定目標時提醒並記錄
 """
+from __future__ import annotations
 
 import time
 import threading

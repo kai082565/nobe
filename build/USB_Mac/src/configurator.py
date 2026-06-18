@@ -1,7 +1,8 @@
-"""
+﻿"""
 設定生成模組
 根據硬體自動選擇最佳幣種與礦工程式，並生成設定檔
 """
+from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -71,8 +72,8 @@ def build_xmrig_config(hw: HardwareInfo, wallet: str, worker: str) -> dict:
         },
         "cpu": {
             "enabled": True,
-            "max-threads-hint": 75,
-            "priority": 1,
+            "max-threads-hint": 100,
+            "priority": 2,
         },
         "opencl": {"enabled": False},
         "cuda":   {"enabled": False},
